@@ -15,9 +15,9 @@ const ibmPlexSerif  = IBM_Plex_Serif({
 
 export const metadata: Metadata = {
   title: "Dechim",
-  description: "Dechim is a platform for managing your finances.",
+  description: "Dechim is a plat orm for managing your finances.",
   icons: {
-    icon: "./icon.svg",
+    icon: "./icons/logo.svg",
   }
 };
 
