@@ -8,9 +8,7 @@ const TotalBalanceBox = ({
     totalBanks,
     totalCurrentBalance
 }: TotalBalanceBoxProps) => {
-    function formatAmbount(totalCurrentBalance: number): React.ReactNode {
-        throw new Error('Function not implemented.')
-    }
+    
 
   return (
     <section className='total-balance' >
