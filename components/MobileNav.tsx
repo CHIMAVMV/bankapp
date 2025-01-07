@@ -11,7 +11,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet"
-import { sidebarLinks } from '@/constant';
+import { sidebarLinks } from '@/constants';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';

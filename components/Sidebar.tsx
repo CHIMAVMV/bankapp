@@ -1,5 +1,5 @@
 'use client'
-import { sidebarLinks } from '@/constant'
+import { sidebarLinks } from '@/constants'
 import { cn } from '@/lib/utils'
 //import { link } from 'fs'
 import Image from 'next/image'
