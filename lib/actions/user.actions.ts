@@ -119,34 +119,15 @@ export async function getLoggedInUser() {
   }
 }
 
-//export const logoutAccount = async () => {
- // try {
-    //const { account } = await createSessionClient();
-
-    //(await cookies()).delete('appwrite-session');
-
-   // await account.deleteSession('current');
- // } catch (error) {
- //   return null;
-//  }
-//}
-
-export const logoutAccount = async (): Promise<{ success: boolean; error?: string }> => {
+export const logoutAccount = async () => {
   try {
     const { account } = await createSessionClient();
 
     (await cookies()).delete('appwrite-session');
-    await account.deleteSession('current');
 
-    return { success: true };
+    await account.deleteSession('current');
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to logout';
-    console.error('Logout error:', errorMessage);
-    
-    return { 
-      success: false, 
-      error: errorMessage 
-    };
+    return null;
   }
 }
 

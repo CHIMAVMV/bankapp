@@ -1,7 +1,7 @@
 import BankCard from '@/components/BankCard';
 import HeaderBox from '@/components/HeaderBox'
 //create a lib folder in the root of your project and add this file
-import { getAccounts } from '../../lib/actions/bank.actions';
+import { getAccounts } from '@/lib/actions/bank.actions';
 import { getLoggedInUser } from '@/lib/actions/user.actions';
 import React from 'react'
 

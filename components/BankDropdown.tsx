@@ -34,7 +34,6 @@ export const BankDropdown = ({
     });
     router.push(newUrl, { scroll: false });
 
-
     if (setValue) {
       setValue("senderBank", id);
     }
