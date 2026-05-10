@@ -26,7 +26,7 @@ export const getUserInfo = async ({ userId }: getUserInfoProps): Promise<User | 
       [Query.equal('userId', [userId])]
     )
 
-    return (parseStringify(user.documents[0]) as unknown as User) ?? null;
+    return parseStringify<User>(user.documents[0] as unknown as User);
   } catch (error) {
     console.log(error)
     return null;
@@ -247,7 +247,7 @@ export const exchangePublicToken = async ({
   }
 }
 
-export const getBanks = async ({ userId }: getBanksProps) => {
+export const getBanks = async ({ userId }: getBanksProps): Promise<Bank[]> => {
   try {
     const { database } = await createAdminClient();
 
@@ -257,13 +257,14 @@ export const getBanks = async ({ userId }: getBanksProps) => {
       [Query.equal('userId', [userId])]
     )
 
-    return parseStringify(banks.documents);
+    return parseStringify(banks.documents) as unknown as Bank[];
   } catch (error) {
     console.log(error)
+    return [];
   }
 }
 
-export const getBank = async ({ documentId }: getBankProps) => {
+export const getBank = async ({ documentId }: getBankProps): Promise<Bank | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -273,13 +274,14 @@ export const getBank = async ({ documentId }: getBankProps) => {
       [Query.equal('$id', [documentId])]
     )
 
-    return parseStringify(bank.documents[0]);
+    return (parseStringify(bank.documents[0]) as unknown as Bank) ?? null;
   } catch (error) {
     console.log(error)
+    return null;
   }
 }
 
-export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps) => {
+export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps): Promise<Bank | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -291,8 +293,9 @@ export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps)
 
     if(bank.total !== 1) return null;
 
-    return parseStringify(bank.documents[0]);
+    return (parseStringify(bank.documents[0]) as unknown as Bank) ?? null;
   } catch (error) {
     console.log(error)
+    return null;
   }
 }

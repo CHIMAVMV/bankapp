@@ -12,6 +12,7 @@ const getDwollaClient = () => {
     !key ||
     !secret
   ) {
+    console.warn("Dwolla is not configured. Set DWOLLA_ENV, DWOLLA_KEY, and DWOLLA_SECRET.");
     return null;
   }
 

@@ -15,7 +15,7 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
   try {
     // get banks from db
     const banks = await getBanks({ userId });
-    const bankList = (banks ?? []) as unknown as Bank[];
+    const bankList = banks ?? [];
 
     const accounts = await Promise.all(
       bankList.map(async (bank) => {
@@ -66,7 +66,7 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
 export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
   try {
     // get bank from db
-    const bank = (await getBank({ documentId: appwriteItemId })) as unknown as Bank | undefined;
+    const bank = await getBank({ documentId: appwriteItemId });
     if (!bank) return null;
 
     // get account info from plaid

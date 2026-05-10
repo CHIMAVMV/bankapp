@@ -60,14 +60,8 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
       const senderBank = await getBank({ documentId: data.senderBank });
       if (!senderBank || !receiverBank) return;
 
-      const senderUserId =
-        typeof senderBank.userId === "string"
-          ? senderBank.userId
-          : senderBank.userId?.$id;
-      const receiverUserId =
-        typeof receiverBank.userId === "string"
-          ? receiverBank.userId
-          : receiverBank.userId?.$id;
+      const senderUserId = senderBank.userId;
+      const receiverUserId = receiverBank.userId;
       if (!senderUserId || !receiverUserId) return;
 
       const transferParams = {
