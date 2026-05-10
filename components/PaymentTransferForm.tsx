@@ -58,6 +58,11 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
         accountId: receiverAccountId,
       });
       const senderBank = await getBank({ documentId: data.senderBank });
+      if (!senderBank || !receiverBank) return;
+
+      const senderUserId = senderBank.userId;
+      const receiverUserId = receiverBank.userId;
+      if (!senderUserId || !receiverUserId) return;
 
       const transferParams = {
         sourceFundingSourceUrl: senderBank.fundingSourceUrl,
@@ -72,9 +77,9 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
         const transaction = {
           name: data.name,
           amount: data.amount,
-          senderId: senderBank.userId.$id,
+          senderId: senderUserId,
           senderBankId: senderBank.$id,
-          receiverId: receiverBank.userId.$id,
+          receiverId: receiverUserId,
           receiverBankId: receiverBank.$id,
           email: data.email,
         };

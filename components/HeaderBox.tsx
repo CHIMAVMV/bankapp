@@ -1,6 +1,4 @@
-import { HeaderBoxProps } from '@/types';
-
-const HeaderBox: React.FC<HeaderBoxProps> = ({ type, title, user, subtext }) => {
+const HeaderBox = ({ type, title, user, subtext }: HeaderBoxProps) => {
   return (
     // Your HeaderBox implementation
     <div className="header-box">

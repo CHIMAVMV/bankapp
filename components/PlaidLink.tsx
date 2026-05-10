@@ -14,7 +14,7 @@ const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
     const getLinkToken = async () => {
       const data = await createLinkToken(user);
 
-      setToken(data?.linkToken);
+      setToken(data?.linkToken ?? "");
     }
 
     getLinkToken();
@@ -27,7 +27,7 @@ const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
     })
 
     router.push('/');
-  }, [user])
+  }, [router, user])
   
   const config: PlaidLinkOptions = {
     token,

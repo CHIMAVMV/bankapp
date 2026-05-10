@@ -16,7 +16,7 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
-export const getUserInfo = async ({ userId }: getUserInfoProps) => {
+export const getUserInfo = async ({ userId }: getUserInfoProps): Promise<User | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -26,13 +26,14 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
       [Query.equal('userId', [userId])]
     )
 
-    return parseStringify(user.documents[0]);
+    return parseStringify<User>(user.documents[0] as unknown as User);
   } catch (error) {
     console.log(error)
+    return null;
   }
 }
 
-export const signIn = async ({ email, password }: signInProps) => {
+export const signIn = async ({ email, password }: signInProps): Promise<User | null> => {
   try {
     const { account } = await createAdminClient();
     const session = await account.createEmailPasswordSession(email, password);
@@ -46,13 +47,14 @@ export const signIn = async ({ email, password }: signInProps) => {
 
     const user = await getUserInfo({ userId: session.userId }) 
 
-    return parseStringify(user);
+    return parseStringify(user) as unknown as User;
   } catch (error) {
     console.error('Error', error);
+    return null;
   }
 }
 
-export const signUp = async ({ password, ...userData }: SignUpParams) => {
+export const signUp = async ({ password, ...userData }: SignUpParams): Promise<User | null> => {
   const { email, firstName, lastName } = userData;
   
   let newUserAccount;
@@ -99,20 +101,21 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
       secure: true,
     });
 
-    return parseStringify(newUser);
+    return parseStringify(newUser) as unknown as User;
   } catch (error) {
     console.error('Error', error);
+    return null;
   }
 }
 
-export async function getLoggedInUser() {
+export async function getLoggedInUser(): Promise<User | null> {
   try {
     const { account } = await createSessionClient();
     const result = await account.get();
 
     const user = await getUserInfo({ userId: result.$id})
 
-    return parseStringify(user);
+    return user;
   } catch (error) {
     console.log(error)
     return null;
@@ -126,7 +129,7 @@ export const logoutAccount = async () => {
     (await cookies()).delete('appwrite-session');
 
     await account.deleteSession('current');
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -244,7 +247,7 @@ export const exchangePublicToken = async ({
   }
 }
 
-export const getBanks = async ({ userId }: getBanksProps) => {
+export const getBanks = async ({ userId }: getBanksProps): Promise<Bank[]> => {
   try {
     const { database } = await createAdminClient();
 
@@ -254,13 +257,14 @@ export const getBanks = async ({ userId }: getBanksProps) => {
       [Query.equal('userId', [userId])]
     )
 
-    return parseStringify(banks.documents);
+    return parseStringify(banks.documents) as unknown as Bank[];
   } catch (error) {
     console.log(error)
+    return [];
   }
 }
 
-export const getBank = async ({ documentId }: getBankProps) => {
+export const getBank = async ({ documentId }: getBankProps): Promise<Bank | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -270,13 +274,14 @@ export const getBank = async ({ documentId }: getBankProps) => {
       [Query.equal('$id', [documentId])]
     )
 
-    return parseStringify(bank.documents[0]);
+    return (parseStringify(bank.documents[0]) as unknown as Bank) ?? null;
   } catch (error) {
     console.log(error)
+    return null;
   }
 }
 
-export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps) => {
+export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps): Promise<Bank | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -288,8 +293,9 @@ export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps)
 
     if(bank.total !== 1) return null;
 
-    return parseStringify(bank.documents[0]);
+    return (parseStringify(bank.documents[0]) as unknown as Bank) ?? null;
   } catch (error) {
     console.log(error)
+    return null;
   }
 }

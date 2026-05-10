@@ -2,32 +2,35 @@
 
 import { Client } from "dwolla-v2";
 
-const getEnvironment = (): "production" | "sandbox" => {
-  const environment = process.env.DWOLLA_ENV as string;
+const getDwollaClient = () => {
+  const environment = process.env.DWOLLA_ENV;
+  const key = process.env.DWOLLA_KEY;
+  const secret = process.env.DWOLLA_SECRET;
 
-  switch (environment) {
-    case "sandbox":
-      return "sandbox";
-    case "production":
-      return "production";
-    default:
-      throw new Error(
-        "Dwolla environment should either be set to `sandbox` or `production`"
-      );
+  if (
+    (environment !== "sandbox" && environment !== "production") ||
+    !key ||
+    !secret
+  ) {
+    console.warn("Dwolla is not configured. Set DWOLLA_ENV, DWOLLA_KEY, and DWOLLA_SECRET.");
+    return null;
   }
-};
 
-const dwollaClient = new Client({
-  environment: getEnvironment(),
-  key: process.env.DWOLLA_KEY as string,
-  secret: process.env.DWOLLA_SECRET as string,
-});
+  return new Client({
+    environment,
+    key,
+    secret,
+  });
+};
 
 // Create a Dwolla Funding Source using a Plaid Processor Token
 export const createFundingSource = async (
   options: CreateFundingSourceOptions
 ) => {
   try {
+    const dwollaClient = getDwollaClient();
+    if (!dwollaClient) throw new Error("Dwolla is not configured");
+
     return await dwollaClient
       .post(`customers/${options.customerId}/funding-sources`, {
         name: options.fundingSourceName,
@@ -41,6 +44,9 @@ export const createFundingSource = async (
 
 export const createOnDemandAuthorization = async () => {
   try {
+    const dwollaClient = getDwollaClient();
+    if (!dwollaClient) throw new Error("Dwolla is not configured");
+
     const onDemandAuthorization = await dwollaClient.post(
       "on-demand-authorizations"
     );
@@ -55,6 +61,9 @@ export const createDwollaCustomer = async (
   newCustomer: NewDwollaCustomerParams
 ) => {
   try {
+    const dwollaClient = getDwollaClient();
+    if (!dwollaClient) throw new Error("Dwolla is not configured");
+
     return await dwollaClient
       .post("customers", newCustomer)
       .then((res) => res.headers.get("location"));
@@ -69,6 +78,9 @@ export const createTransfer = async ({
   amount,
 }: TransferParams) => {
   try {
+    const dwollaClient = getDwollaClient();
+    if (!dwollaClient) throw new Error("Dwolla is not configured");
+
     const requestBody = {
       _links: {
         source: {

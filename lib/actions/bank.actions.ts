@@ -1,12 +1,7 @@
 "use server";
 
 import {
-  ACHClass,
   CountryCode,
-  TransferAuthorizationCreateRequest,
-  TransferCreateRequest,
-  TransferNetwork,
-  TransferType,
 } from "plaid";
 
 import { plaidClient } from "../plaid";
@@ -20,9 +15,10 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
   try {
     // get banks from db
     const banks = await getBanks({ userId });
+    const bankList = banks ?? [];
 
     const accounts = await Promise.all(
-      banks?.map(async (bank: Bank) => {
+      bankList.map(async (bank) => {
         // get each account info from plaid
         const accountsResponse = await plaidClient.accountsGet({
           access_token: bank.accessToken,
@@ -33,6 +29,9 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
         const institution = await getInstitution({
           institutionId: accountsResponse.data.item.institution_id!,
         });
+        if (!institution?.institution_id) {
+          throw new Error("Institution not found");
+        }
 
         const account = {
           id: accountData.account_id,
@@ -68,6 +67,7 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
   try {
     // get bank from db
     const bank = await getBank({ documentId: appwriteItemId });
+    if (!bank) return null;
 
     // get account info from plaid
     const accountsResponse = await plaidClient.accountsGet({
@@ -80,8 +80,9 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       bankId: bank.$id,
     });
 
-    const transferTransactions = transferTransactionsData.documents.map(
-      (transferData: Transaction) => ({
+    const transferDocuments = (transferTransactionsData?.documents ?? []) as unknown as Transaction[];
+    const transferTransactions = transferDocuments.map(
+      (transferData) => ({
         id: transferData.$id,
         name: transferData.name!,
         amount: transferData.amount!,
@@ -96,10 +97,13 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
     const institution = await getInstitution({
       institutionId: accountsResponse.data.item.institution_id!,
     });
+    if (!institution?.institution_id) {
+      throw new Error("Institution not found");
+    }
 
-    const transactions = await getTransactions({
+    const transactions = (await getTransactions({
       accessToken: bank?.accessToken,
-    });
+    })) ?? [];
 
     const account = {
       id: accountData.account_id,
@@ -151,7 +155,19 @@ export const getTransactions = async ({
   accessToken,
 }: getTransactionsProps) => {
   let hasMore = true;
-  let transactions: any = [];
+  type PlaidTransaction = {
+    id: string;
+    name: string;
+    paymentChannel: string;
+    type: string;
+    accountId: string;
+    amount: number;
+    pending: boolean;
+    category: string;
+    date: string;
+    image: string | null;
+  };
+  let transactions: PlaidTransaction[] = [];
 
   try {
     // Iterate through each page of new transaction updates for item
@@ -172,7 +188,7 @@ export const getTransactions = async ({
         pending: transaction.pending,
         category: transaction.category ? transaction.category[0] : "",
         date: transaction.date,
-        image: transaction.logo_url,
+        image: transaction.logo_url ?? null,
       }));
 
       hasMore = data.has_more;
