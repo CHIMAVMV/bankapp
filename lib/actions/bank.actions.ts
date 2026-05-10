@@ -1,12 +1,7 @@
 "use server";
 
 import {
-  ACHClass,
   CountryCode,
-  TransferAuthorizationCreateRequest,
-  TransferCreateRequest,
-  TransferNetwork,
-  TransferType,
 } from "plaid";
 
 import { plaidClient } from "../plaid";
@@ -151,7 +146,19 @@ export const getTransactions = async ({
   accessToken,
 }: getTransactionsProps) => {
   let hasMore = true;
-  let transactions: any = [];
+  type PlaidTransaction = {
+    id: string;
+    name: string;
+    paymentChannel: string;
+    type: string;
+    accountId: string;
+    amount: number;
+    pending: boolean;
+    category: string;
+    date: string;
+    image: string | null;
+  };
+  let transactions: PlaidTransaction[] = [];
 
   try {
     // Iterate through each page of new transaction updates for item
