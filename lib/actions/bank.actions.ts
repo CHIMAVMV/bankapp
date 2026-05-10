@@ -29,12 +29,15 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
         const institution = await getInstitution({
           institutionId: accountsResponse.data.item.institution_id!,
         });
+        if (!institution?.institution_id) {
+          throw new Error("Institution not found");
+        }
 
         const account = {
           id: accountData.account_id,
           availableBalance: accountData.balances.available!,
           currentBalance: accountData.balances.current!,
-          institutionId: institution?.institution_id ?? "",
+          institutionId: institution.institution_id,
           name: accountData.name,
           officialName: accountData.official_name,
           mask: accountData.mask!,
@@ -94,6 +97,9 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
     const institution = await getInstitution({
       institutionId: accountsResponse.data.item.institution_id!,
     });
+    if (!institution?.institution_id) {
+      throw new Error("Institution not found");
+    }
 
     const transactions = (await getTransactions({
       accessToken: bank?.accessToken,
@@ -103,7 +109,7 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       id: accountData.account_id,
       availableBalance: accountData.balances.available!,
       currentBalance: accountData.balances.current!,
-      institutionId: institution?.institution_id ?? "",
+      institutionId: institution.institution_id,
       name: accountData.name,
       officialName: accountData.official_name,
       mask: accountData.mask!,

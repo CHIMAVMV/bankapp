@@ -57,7 +57,7 @@ const AuthForm = ({ type }: { type: string }) => {
 
           const newUser = await signUp(userData);
 
-          setUser((newUser ?? null) as unknown as User | null);
+          setUser(newUser);
         }
 
         if(type === 'sign-in') {

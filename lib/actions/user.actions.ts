@@ -16,7 +16,7 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
-export const getUserInfo = async ({ userId }: getUserInfoProps) => {
+export const getUserInfo = async ({ userId }: getUserInfoProps): Promise<User | null> => {
   try {
     const { database } = await createAdminClient();
 
@@ -26,13 +26,14 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
       [Query.equal('userId', [userId])]
     )
 
-    return parseStringify(user.documents[0]);
+    return (parseStringify(user.documents[0]) as unknown as User) ?? null;
   } catch (error) {
     console.log(error)
+    return null;
   }
 }
 
-export const signIn = async ({ email, password }: signInProps) => {
+export const signIn = async ({ email, password }: signInProps): Promise<User | null> => {
   try {
     const { account } = await createAdminClient();
     const session = await account.createEmailPasswordSession(email, password);
@@ -46,13 +47,14 @@ export const signIn = async ({ email, password }: signInProps) => {
 
     const user = await getUserInfo({ userId: session.userId }) 
 
-    return parseStringify(user);
+    return parseStringify(user) as unknown as User;
   } catch (error) {
     console.error('Error', error);
+    return null;
   }
 }
 
-export const signUp = async ({ password, ...userData }: SignUpParams) => {
+export const signUp = async ({ password, ...userData }: SignUpParams): Promise<User | null> => {
   const { email, firstName, lastName } = userData;
   
   let newUserAccount;
@@ -99,20 +101,21 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
       secure: true,
     });
 
-    return parseStringify(newUser);
+    return parseStringify(newUser) as unknown as User;
   } catch (error) {
     console.error('Error', error);
+    return null;
   }
 }
 
-export async function getLoggedInUser() {
+export async function getLoggedInUser(): Promise<User | null> {
   try {
     const { account } = await createSessionClient();
     const result = await account.get();
 
     const user = await getUserInfo({ userId: result.$id})
 
-    return parseStringify(user);
+    return user;
   } catch (error) {
     console.log(error)
     return null;

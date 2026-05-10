@@ -15,9 +15,8 @@ const Home = async ({ searchParams }: HomePageProps) => {
   const currentPage = Number(page) || 1;
   const loggedIn = await getLoggedInUser();
   if (!loggedIn) redirect('/sign-in');
-  const currentUser = loggedIn as unknown as User;
   const accounts = await getAccounts({ 
-    userId: currentUser.$id 
+    userId: loggedIn.$id 
   }) as { data: Account[]; totalBanks: number; totalCurrentBalance: number } | undefined;
 
   if (!accounts || accounts.data.length === 0) return null;
@@ -34,7 +33,7 @@ const Home = async ({ searchParams }: HomePageProps) => {
             <HeaderBox 
               type="greeting"
               title="Welcome"
-              user={currentUser.firstName || 'Guest'}
+              user={loggedIn.firstName || 'Guest'}
               subtext="Access and manage your account and transactions efficiently."
             />
 
@@ -54,7 +53,7 @@ const Home = async ({ searchParams }: HomePageProps) => {
       </div>
 
       <RightSidebar 
-        user={currentUser}
+        user={loggedIn}
         transactions={account?.transactions ?? []}
         banks={accountsData?.slice(0, 2)}
       />
