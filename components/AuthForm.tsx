@@ -20,7 +20,7 @@ import PlaidLink from './PlaidLink';
 
 const AuthForm = ({ type }: { type: string }) => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = authFormSchema(type);
@@ -57,7 +57,7 @@ const AuthForm = ({ type }: { type: string }) => {
 
           const newUser = await signUp(userData);
 
-          setUser(newUser);
+          setUser((newUser ?? null) as unknown as User | null);
         }
 
         if(type === 'sign-in') {

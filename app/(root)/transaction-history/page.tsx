@@ -4,21 +4,29 @@ import TransactionsTable from '@/components/TransactionsTable';
 import { getAccount, getAccounts } from '@/lib/actions/bank.actions';
 import { getLoggedInUser } from '@/lib/actions/user.actions';
 import { formatAmount } from '@/lib/utils';
+import { redirect } from 'next/navigation';
 import React from 'react'
 
-const TransactionHistory = async ({ searchParams: { id, page }}:SearchParamProps) => {
-  const currentPage = Number(page as string) || 1;
+type TransactionHistoryPageProps = {
+  searchParams: Promise<{ id?: string; page?: string }>;
+};
+
+const TransactionHistory = async ({ searchParams }: TransactionHistoryPageProps) => {
+  const { id, page } = await searchParams;
+  const currentPage = Number(page) || 1;
   const loggedIn = await getLoggedInUser();
+  if (!loggedIn) redirect('/sign-in');
   const accounts = await getAccounts({ 
     userId: loggedIn.$id 
-  })
+  }) as { data: Account[] } | undefined;
 
-  if(!accounts) return;
+  if (!accounts || accounts.data.length === 0) return null;
   
-  const accountsData = accounts?.data;
-  const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
+  const accountsData = accounts.data;
+  const appwriteItemId = id || accountsData[0].appwriteItemId;
 
-  const account = await getAccount({ appwriteItemId })
+  const account = await getAccount({ appwriteItemId }) as { data: Account; transactions: Transaction[] } | undefined;
+  if (!account) return null;
 
 
 const rowsPerPage = 10;

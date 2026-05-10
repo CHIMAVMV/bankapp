@@ -15,9 +15,10 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
   try {
     // get banks from db
     const banks = await getBanks({ userId });
+    const bankList = (banks ?? []) as unknown as Bank[];
 
     const accounts = await Promise.all(
-      banks?.map(async (bank: Bank) => {
+      bankList.map(async (bank) => {
         // get each account info from plaid
         const accountsResponse = await plaidClient.accountsGet({
           access_token: bank.accessToken,
@@ -33,7 +34,7 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
           id: accountData.account_id,
           availableBalance: accountData.balances.available!,
           currentBalance: accountData.balances.current!,
-          institutionId: institution.institution_id,
+          institutionId: institution?.institution_id ?? "",
           name: accountData.name,
           officialName: accountData.official_name,
           mask: accountData.mask!,
@@ -62,7 +63,8 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
 export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
   try {
     // get bank from db
-    const bank = await getBank({ documentId: appwriteItemId });
+    const bank = (await getBank({ documentId: appwriteItemId })) as unknown as Bank | undefined;
+    if (!bank) return null;
 
     // get account info from plaid
     const accountsResponse = await plaidClient.accountsGet({
@@ -75,8 +77,9 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       bankId: bank.$id,
     });
 
-    const transferTransactions = transferTransactionsData.documents.map(
-      (transferData: Transaction) => ({
+    const transferDocuments = (transferTransactionsData?.documents ?? []) as unknown as Transaction[];
+    const transferTransactions = transferDocuments.map(
+      (transferData) => ({
         id: transferData.$id,
         name: transferData.name!,
         amount: transferData.amount!,
@@ -92,15 +95,15 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       institutionId: accountsResponse.data.item.institution_id!,
     });
 
-    const transactions = await getTransactions({
+    const transactions = (await getTransactions({
       accessToken: bank?.accessToken,
-    });
+    })) ?? [];
 
     const account = {
       id: accountData.account_id,
       availableBalance: accountData.balances.available!,
       currentBalance: accountData.balances.current!,
-      institutionId: institution.institution_id,
+      institutionId: institution?.institution_id ?? "",
       name: accountData.name,
       officialName: accountData.official_name,
       mask: accountData.mask!,
@@ -179,7 +182,7 @@ export const getTransactions = async ({
         pending: transaction.pending,
         category: transaction.category ? transaction.category[0] : "",
         date: transaction.date,
-        image: transaction.logo_url,
+        image: transaction.logo_url ?? null,
       }));
 
       hasMore = data.has_more;

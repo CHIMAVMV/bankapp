@@ -14,7 +14,7 @@ const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
     const getLinkToken = async () => {
       const data = await createLinkToken(user);
 
-      setToken(data?.linkToken);
+      setToken(data?.linkToken ?? "");
     }
 
     getLinkToken();
